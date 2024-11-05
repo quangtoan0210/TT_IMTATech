@@ -20,11 +20,7 @@
                             <input type="password" class="form-control" id="password" name="password" required>
                         </div>
                         <button type="submit" class="btn btn-info btn-block">Đăng Nhập</button>
-                        <div class="flex items-center justify-center mt-4 align-middle ">
-                            <a href="{{ route('login.google') }}">
-                                <img src="https://developers.google.com/identity/images/btn_google_signin_dark_normal_web.png" style="margin-left: 3em;">
-                            </a>
-                        </div>
+                        
                         <div class="text-center mt-3">
                             <p>Chưa có tài khoản? <a href="{{route('formRegister')}}">Đăng ký ngay</a></p>
                         </div>

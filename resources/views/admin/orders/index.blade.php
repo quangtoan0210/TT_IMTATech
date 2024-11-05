@@ -20,8 +20,9 @@
     </div>
     <!-- DataTales Example -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-info">Danh Sách Đơn Hàng</h6>
+        <div class="d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-info">Danh Sách Tài Khoản</h6>
+        <a href="{{ route('admin.orders.export') }}"class="btn btn-outline-success">Xuất dữ liệu</a>
         </div>
         <div class="card-body">
             <div class="table-responsive">

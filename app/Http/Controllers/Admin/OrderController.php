@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\OrdersExport;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
 
 class OrderController extends Controller
 {
@@ -50,5 +52,9 @@ class OrderController extends Controller
         $order = Order::with('items')->findOrFail($id);
         $pdf = Pdf::loadView('admin.orders.invoice', compact('order'));
         return $pdf->download('invoice_' . $order->id . '.pdf');
+    }
+    public function export()
+    {
+        return Excel::download(new OrdersExport, 'orders.xlsx');
     }
 }

@@ -49,10 +49,13 @@ Route::middleware('authAdmin')->prefix('admin')->as('admin.')->group(function ()
 
 
     //Order
+    Route::get('/orders/export', [OrderController::class, 'export'])->name('orders.export');
+
     Route::resource('orders', OrderController::class)->only([
         'index',
         'show'
     ]);
+
     // routes/web.php
     Route::patch('orders/{id}/status', [OrderController::class, 'updateStatus'])->name('updateStatus');
     // routes/web.php
