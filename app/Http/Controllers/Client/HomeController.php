@@ -13,11 +13,11 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $banner =Banner::query()->get();
+        $banners = Banner::with('images')->get();
         $product = Product::query()->latest('id')->take(5)->get();
         $products = Product::query()->latest('id')->take(8)->get();
         $categories = Category::all();
-        return view('client.layouts.home', compact('product', 'products', 'categories', 'banner'));
+        return view('client.layouts.home', compact('product', 'products', 'categories', 'banners'));
     }
     public function detail(string $id)
     {

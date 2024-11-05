@@ -7,7 +7,7 @@
     <div class="container-fluid">
 
         <!-- Page Heading -->
-        <h1 class="h3 mb-2 text-gray-800">Banner</h1>
+        <h1 class="h3 mb-2 text-gray-800">Quản lý Banner</h1>
 
         <!-- DataTales Example -->
         <div class="card shadow mb-4">
@@ -16,35 +16,57 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                        <div class="col-sm-8">
-                            <form action="{{ route('admin.banners.store') }}" method="POST" enctype="multipart/form-data">
-                                @csrf
+                    <div class="col-sm-8">
+                        <form action="{{ route('admin.banners.store') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
 
-                                <!-- Tên -->
-                                <div class="mb-3">
-                                    <label class="form-label">Tên:</label>
-                                    <input type="text" name="title" class="form-control" value="{{ old('title') }}">
-                                    @error('title')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
-                                </div>
+                            <!-- Tiêu đề -->
+                            <div class="mb-3">
+                                <label class="form-label">Tiêu đề:</label>
+                                <input type="text" name="title" class="form-control" value="{{ old('title') }}" required>
+                                @error('title')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
 
-                                <!-- Ảnh -->
-                                <div class="mb-3">
-                                    <label class="form-label">Ảnh:</label><br>
-                                    <input type="file" name="image" onchange="showImage(event)" class="form-control">
-                                    @error('image')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                                <img id="cover" src="" alt="Hình ảnh sản phẩm" style="width: 200px; display: none">
+                            <!-- Mô tả -->
+                            <div class="mb-3">
+                                <label class="form-label">Mô tả:</label>
+                                <textarea name="description" class="form-control" rows="4">{{ old('description') }}</textarea>
+                                @error('description')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
 
-                                <button type="submit" class="btn btn-success">Tạo mới</button>
-                            </form>
-                        </div>
-                    </table>
-                    <div class="">
+                            <!-- Ảnh (nhiều ảnh) -->
+                            <div class="mb-3">
+                                <label class="form-label">Ảnh:</label><br>
+                                <input type="file" name="images[]" multiple onchange="previewImages(event)" class="form-control">
+                                @error('images.*')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <!-- Hiển thị ảnh xem trước -->
+                            <div id="image-preview" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
+
+                            <!-- Trạng thái -->
+                            <div class="mb-3">
+                                <label class="form-label">Trạng thái:</label>
+                                <select name="status" class="form-control">
+                                    <option value="1" {{ old('status') == 1 ? 'selected' : '' }}>Kích hoạt</option>
+                                    <option value="0" {{ old('status') == 0 ? 'selected' : '' }}>Ẩn</option>
+                                </select>
+                                @error('status')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <button type="submit" class="btn btn-success">Tạo mới</button>
+                        </form>
+                    </div>
+
+                    <div class="mt-4">
                         @if (session('success'))
                             <div class="alert alert-success" role="alert">
                                 {{ session('success') }}
@@ -59,19 +81,23 @@
 
 @section('js')
     <script>
-        function showImage(event) {
-            const cover = document.getElementById('cover');
-            const file = event.target.files[0];
-            const reader = new FileReader();
+        function previewImages(event) {
+            const previewContainer = document.getElementById('image-preview');
+            previewContainer.innerHTML = '';
 
-            reader.onload = function () {
-                cover.src = reader.result;
-                cover.style.display = 'block';
-            }
-
-            if (file) {
+            Array.from(event.target.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function () {
+                    const imgElement = document.createElement('img');
+                    imgElement.src = reader.result;
+                    imgElement.style.width = '100px';
+                    imgElement.style.height = '100px';
+                    imgElement.style.objectFit = 'cover';
+                    imgElement.style.margin = '5px';
+                    previewContainer.appendChild(imgElement);
+                }
                 reader.readAsDataURL(file);
-            }
+            });
         }
     </script>
 @endsection

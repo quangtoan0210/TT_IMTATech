@@ -1,90 +1,97 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
-
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Storage;
+
 use App\Models\Banner;
-use App\Http\Requests\StoreBannerRequest;
-use App\Http\Requests\UpdateBannerRequest;
+use App\Models\BannerImage;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class BannerController extends Controller
 {
-    const PATH_VIEW = 'admin.banners.';
-    const PATH_UPLOAD = 'banners';
-
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $data = Banner::query()->latest('id')->paginate(5);
-        return view(self::PATH_VIEW . __FUNCTION__, compact('data'));
+        $banners = Banner::with('images')->get();
+        return view('admin.banners.index', compact('banners'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return view(self::PATH_VIEW . __FUNCTION__);
+        return view('admin.banners.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreBannerRequest $request)
+    public function store(Request $request)
     {
-        $data = $request->except('image');
-        if ($request->hasFile('image')) {
-            $data['image'] = Storage::put(self::PATH_UPLOAD, $request->file('image'));
-        } else {
-            $data['image'] = '';
+        $request->validate([
+            'title' => 'required|string',
+            'description' => 'nullable|string',
+            'images.*' => 'required|image', // Mỗi file phải là một hình ảnh
+            'status' => 'required|boolean',
+        ]);
+
+        $banner = Banner::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'status' => $request->status,
+        ]);
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('banner_images');
+                $banner->images()->create(['image_path' => $path]);
+            }
         }
-        Banner::query()->create($data);
+
         return redirect()->route('admin.banners.index')->with('success', 'Banner created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Banner $banner)
     {
-        return view(self::PATH_VIEW . __FUNCTION__, compact('banner'));
+        return view('admin.banners.edit', compact('banner'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateBannerRequest $request, Banner $banner)
-    {
-        $data = $request->except('image');
-       
-        if ($request->hasFile('image')) {
-            $data['image'] = Storage::put(self::PATH_UPLOAD, $request->file('image'));
-            if(!empty($banner->image) && Storage::exists($banner->image)) {
-                Storage::delete($banner->image);
-            }
-      
-        } else {
-            $data['image'] = $banner->image;
+    public function update(Request $request, Banner $banner)
+{
+    $request->validate([
+        'title' => 'required|string',
+        'description' => 'nullable|string',
+        'images.*' => 'nullable|image',
+        'status' => 'required|boolean',
+    ]);
+
+    // Cập nhật thông tin banner
+    $banner->update([
+        'title' => $request->title,
+        'description' => $request->description,
+        'status' => $request->status,
+    ]);
+
+    // Kiểm tra xem có ảnh nào được tải lên không
+    if ($request->hasFile('images')) {
+        // Xóa các ảnh hiện tại
+        foreach ($banner->images as $image) {
+            Storage::delete($image->image_path); // Xóa ảnh cũ khỏi bộ nhớ
+            $image->delete(); // Xóa bản ghi ảnh khỏi cơ sở dữ liệu
         }
-        $banner->update($data);
-        return redirect()->route('admin.banners.index')->with('success', 'Banner updated successfully.');
+
+        // Lưu các ảnh mới
+        foreach ($request->file('images') as $image) {
+            $path = $image->store('banner_images');
+            $banner->images()->create(['image_path' => $path]);
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    return redirect()->route('admin.banners.index')->with('success', 'Cập nhật banner thành công.');
+}
+
+
     public function destroy(Banner $banner)
     {
-        Storage::delete($banner->image);
+        foreach ($banner->images as $image) {
+            Storage::delete($image->image_path);
+        }
         $banner->delete();
-        return back()->with('success', 'Banner deleted successfully.');
+
+        return redirect()->route('admin.banners.index')->with('success', 'Banner deleted successfully.');
     }
 }

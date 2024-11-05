@@ -1,16 +1,16 @@
 @extends('client.layouts.master')
 
 @section('banner')
+
 <div id="header-carousel" class="carousel slide" data-ride="carousel">
     <div class="carousel-inner">
-        <div class="carousel-inner">
-            @foreach ($banner as $index => $banner)
-                <div class="carousel-item {{ $index == 0 ? 'active' : '' }}" style="height: 410px;">
-                    <img class="img-fluid" src="{{Storage::url($banner->image)}}" alt="">
+        @foreach ($banners as $banner)
+            @foreach ($banner->images as $index => $image)
+                <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
+                    <img class="img-fluid" src="{{ Storage::url($image->image_path) }}" style="height: 410px; width: auto;" alt="Banner Image">
                 </div>
             @endforeach
-        </div>
-        
+        @endforeach
     </div>
     <a class="carousel-control-prev" href="#header-carousel" data-slide="prev">
         <div class="btn btn-dark" style="width: 45px; height: 45px;">
