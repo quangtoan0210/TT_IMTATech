@@ -1,7 +1,7 @@
 @include('client.layouts.block.header')
     <!-- Topbar Start -->
     @include('client.layouts.block.topbar')
-
+    @yield('css')
     @yield('banner')
    
 

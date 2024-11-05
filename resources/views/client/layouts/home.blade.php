@@ -1,7 +1,26 @@
 @extends('client.layouts.master')
 
 @section('banner')
+@section('css')
+<style>
+    #header-carousel {
+    width: 100%;
+    height: 410px; /* Thay đổi chiều cao theo nhu cầu */
+    overflow: hidden; /* Ẩn bất kỳ phần nào của hình ảnh ra ngoài phần chứa */
+    text-align: center; /*
+}
 
+.carousel-item {
+    height: 100%; /* Đảm bảo mỗi item của carousel chiếm toàn bộ chiều cao */
+}
+
+.carousel-item img {
+    width: 100%;
+    height: 100%; /* Giữ cho ảnh đầy đủ chiều cao của carousel */
+    object-fit: cover; /* Giữ tỷ lệ khung hình của ảnh */
+}
+</style>
+@endsection
 <div id="header-carousel" class="carousel slide" data-ride="carousel">
     <div class="carousel-inner">
         @foreach ($banners as $banner)
